@@ -34,7 +34,7 @@ app.post("/login", async (req: Request, res: Response) => {
     if (!user || user.password !== password) {
       throw new Error("Invalid credentials");
     }
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json(user);
   } catch (error) {
     res.status(401).json({ error: "Invalid credentials" });
   }
@@ -55,6 +55,19 @@ app.post("/todos", async (req: Request, res: Response) => {
   }
 });
 
+app.get("/todos/:userId", async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+  try {
+    const todos = await prisma.todo.findMany({
+      where: { userId },
+      include: { user: true },
+    });
+    res.status(200).json(todos);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching todos" });
+  }
+});
+
 app.delete("/todos/:id", async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
@@ -67,10 +80,6 @@ app.delete("/todos/:id", async (req: Request, res: Response) => {
   }
 });
 
-app
-  .listen(PORT, () => {
-    console.log("Server running at PORT: ", PORT);
-  })
-  .on("error", (error) => {
-    throw new Error(error.message);
-  });
+app.listen(PORT, () => {
+  console.log("server on: ", PORT);
+});
