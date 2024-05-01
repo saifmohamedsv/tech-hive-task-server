@@ -19,6 +19,11 @@ app.post("/register", async (req: Request, res: Response) => {
         password,
       },
     });
+
+    if (email === "" || password === "") {
+      throw new Error("Email & password are required!");
+    }
+
     res.status(201).json(user);
   } catch (error) {
     res.status(500).json({ error: "Error registering user" });
@@ -31,11 +36,17 @@ app.post("/login", async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
       where: { email },
     });
+
+    if (email === "" || password === "") {
+      throw new Error("Email & password are required!");
+    }
+
     if (!user || user.password !== password) {
       throw new Error("Invalid credentials");
     }
     res.status(200).json(user);
   } catch (error) {
+    console.log(error);
     res.status(401).json({ error: "Invalid credentials" });
   }
 });
